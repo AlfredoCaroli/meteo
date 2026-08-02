@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Applicazione Meteo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <h1>Applicazione Meteo</h1>
+
+    <form method="post">
+
+        <label for="citta">Città:</label>
+
+        <input
+            type="text"
+            id="citta"
+            name="citta"
+            required
+        >
+
+        <button type="submit">
+            Cerca
+        </button>
+
+    </form>
+
+    {% if dati %}
+
+        <p>Hai cercato: <strong>{{ dati.citta }} ({{ dati.regione }})</strong></p>
+
+    <h2>Condizioni attuali</h2>
+
+    <p>{{ dati.descrizione }}</p>
+
+    <p>🌡️ Temperatura: {{ dati.temperatura }} °C</p>
+    <p>💧 Umidità: {{dati.umidita}}%</p>
+    <p>💨 Vento: {{ dati.velocita_vento }} km/h</p>
+
+    <h2>Previsioni</h2>
+
+    <ul>
+        {% for previsione in dati.previsioni %}
+            <li>
+                {{ previsione.giorno }}<br>
+                {{ previsione.descrizione }}<br>
+                Min: {{ previsione.minima }} °C -
+                Max: {{ previsione.massima }} °C
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% endif %}
+
+</body>
+
+</html>
