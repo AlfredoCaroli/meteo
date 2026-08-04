@@ -8,10 +8,10 @@ pulsantePosizione.addEventListener("click", () => {
     
     navigator.geolocation.getCurrentPosition(
         (posizione) => {
-            console.log(posizione);
-            // to delete
-            const coordinate = posizione.coords
-            alert(`Latitudine: ${coordinate.latitude}\nLongitudine: ${coordinate.longitude}`);
+            const latitudine = posizione.coords.latitude;
+            const longitudine = posizione.coords.longitude;
+
+            window.location.href = `/?latitudine=${latitudine}&longitudine=${longitudine}`;
         },
         () => {
             alert("Impossibile ottenere la posizione.");
