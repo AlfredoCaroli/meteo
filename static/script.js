@@ -8,10 +8,26 @@ pulsantePosizione.addEventListener("click", () => {
     
     navigator.geolocation.getCurrentPosition(
         (posizione) => {
-            const latitudine = posizione.coords.latitude;
-            const longitudine = posizione.coords.longitude;
 
-            window.location.href = `/?latitudine=${latitudine}&longitudine=${longitudine}`;
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/";
+
+            const lat = document.createElement("input");
+            lat.type = "hidden";
+            lat.name = "latitudine";
+            lat.value = posizione.coords.latitude;
+
+            const lon = document.createElement("input");
+            lon.type = "hidden";
+            lon.name = "longitudine";
+            lon.value = posizione.coords.longitude;
+
+            form.appendChild(lat);
+            form.appendChild(lon);
+
+            document.body.appendChild(form);
+            form.submit();
         },
         () => {
             alert("Impossibile ottenere la posizione.");

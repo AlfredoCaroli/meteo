@@ -164,8 +164,8 @@ def home():
     citta = None
     regione = None
 
-    latitudine = request.args.get("latitudine")
-    longitudine = request.args.get("longitudine")
+    latitudine = request.form.get("latitudine")
+    longitudine = request.form.get("longitudine")
 
     if latitudine and longitudine:
         latitudine = float(latitudine)
