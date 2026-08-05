@@ -160,10 +160,23 @@ app = Flask(__name__)
 def home():
     dati = None
     errore = None
+    meteo = None
+    citta = None
+    regione = None
 
-    if request.method == "POST":
+    latitudine = request.args.get("latitudine")
+    longitudine = request.args.get("longitudine")
+
+    if latitudine and longitudine:
+        latitudine = float(latitudine)
+        longitudine = float(longitudine)
+        meteo = ottieni_meteo(latitudine, longitudine)
+
+        if meteo is None:
+            errore = "Impossibile contattare il servizio meteo."
+
+    elif request.method == "POST":
         citta = request.form["citta"]
-
         coordinate = cerca_coordinate(citta)
 
         if coordinate is None:
@@ -171,51 +184,51 @@ def home():
 
         else:
             latitudine, longitudine, regione = coordinate
-
             meteo = ottieni_meteo(latitudine, longitudine)
 
             if meteo is None:
                 errore = "Impossibile contattare il servizio meteo."
 
-            else:
-                (
-                    temperatura,
-                    umidita,
-                    velocita_vento,
-                    codice_corrente,
-                    giorni,
-                    temperature_minime,
-                    temperature_massime,
-                    codici_previsioni,
-                ) = meteo
+    if meteo is not None:
 
-                previsioni = []
+        (
+            temperatura,
+            umidita,
+            velocita_vento,
+            codice_corrente,
+            giorni,
+            temperature_minime,
+            temperature_massime,
+            codici_previsioni,
+        ) = meteo
 
-                for giorno, minima, massima, codice in zip(
-                    giorni, temperature_minime, temperature_massime, codici_previsioni
-                ):
-                    data = datetime.strptime(giorno, "%Y-%m-%d")
-                    nome_giorno = GIORNI_SETTIMANA[data.weekday()]
-                    nome_mese = MESI[data.month - 1]
-                    giorno_formattato = f"{nome_giorno} {data.day} {nome_mese}"
-                    previsioni.append(
-                        {
-                            "giorno": giorno_formattato,
-                            "minima": minima,
-                            "massima": massima,
-                            "descrizione": ottieni_descrizione(codice),
-                        }
-                    )
+        previsioni = []
 
-                dati = {
-                    "citta": citta,
-                    "regione": regione,
-                    "temperatura": temperatura,
-                    "umidita": umidita,
-                    "velocita_vento": velocita_vento,
-                    "descrizione": ottieni_descrizione(codice_corrente),
-                    "previsioni": previsioni,
+        for giorno, minima, massima, codice in zip(
+            giorni, temperature_minime, temperature_massime, codici_previsioni
+        ):
+            data = datetime.strptime(giorno, "%Y-%m-%d")
+            nome_giorno = GIORNI_SETTIMANA[data.weekday()]
+            nome_mese = MESI[data.month - 1]
+            giorno_formattato = f"{nome_giorno} {data.day} {nome_mese}"
+            previsioni.append(
+                {
+                    "giorno": giorno_formattato,
+                    "minima": minima,
+                    "massima": massima,
+                    "descrizione": ottieni_descrizione(codice),
                 }
+            )
+
+        dati = {
+            "citta": citta,
+            "regione": regione,
+            "temperatura": temperatura,
+            "umidita": umidita,
+            "velocita_vento": velocita_vento,
+            "descrizione": ottieni_descrizione(codice_corrente),
+            "previsioni": previsioni,
+        }
 
     return render_template(
         "index.html",
