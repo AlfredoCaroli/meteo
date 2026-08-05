@@ -170,6 +170,8 @@ def home():
     if latitudine and longitudine:
         latitudine = float(latitudine)
         longitudine = float(longitudine)
+        citta = "La tua posizione"
+
         meteo = ottieni_meteo(latitudine, longitudine)
 
         if meteo is None:

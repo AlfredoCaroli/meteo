@@ -35,14 +35,20 @@
         </button>
 
         <button type="button" id="usa-posizione">
-            📍 TEST GEOLOCALIZZAZIONE
+            📍 La mia posizione
         </button>
 
     </form>
 
     {% if dati %}
 
-        <p>Hai cercato: <strong>{{ dati.citta }} ({{ dati.regione }})</strong></p>
+        <p>Hai cercato: 
+            {% if dati.regione %}
+                <strong>{{ dati.citta }} ({{ dati.regione }})</strong>
+            {% else %}
+                <strong>{{ dati.citta }}</strong>
+            {% endif %}
+        </p>
 
     <h2>Condizioni attuali</h2>
 
