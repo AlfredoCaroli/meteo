@@ -29,8 +29,8 @@ pulsantePosizione.addEventListener("click", () => {
             document.body.appendChild(form);
             form.submit();
         },
-        () => {
-            alert("Impossibile ottenere la posizione.");
+        (error) => {
+            alert(`Codice errore: ${error.code}\n${error.message}`);
         }
     );
 });
