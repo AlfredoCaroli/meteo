@@ -15,6 +15,7 @@ pulsantePosizione.addEventListener("click", () => {
         },
         () => {
             alert("Impossibile ottenere la posizione.");
-        }
+        },
+        {enableHighAccuracy: true}
     );
 });
