@@ -43,6 +43,10 @@
 
     </form>
 
+    {% if errore %}
+        <p>{{errore}}</p>
+    {% endif %}
+
     {% if dati %}
 
         <p>Hai cercato: 

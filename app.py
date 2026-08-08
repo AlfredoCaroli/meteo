@@ -76,7 +76,7 @@ def cerca_coordinate(citta):
         risposta_geocoding.raise_for_status()
 
     except requests.exceptions.RequestException:
-        return None
+        return "errore_servizio"
 
     dati_geocoding = risposta_geocoding.json()
     risultati = dati_geocoding.get("results")
@@ -86,9 +86,12 @@ def cerca_coordinate(citta):
 
     primo_risultato = risultati[0]
 
-    latitudine = primo_risultato["latitude"]
-    longitudine = primo_risultato["longitude"]
+    latitudine = primo_risultato.get("latitude")
+    longitudine = primo_risultato.get("longitude")
     regione = primo_risultato.get("admin1", "Regione sconosciuta")
+
+    if None in (latitudine, longitudine):
+        return None
 
     return latitudine, longitudine, regione
 
@@ -111,7 +114,7 @@ def ottieni_meteo(latitudine, longitudine):
         risposta_meteo.raise_for_status()
 
     except requests.exceptions.RequestException:
-        return None
+        return "errore_servizio"
 
     dati_meteo = risposta_meteo.json()
 
@@ -120,20 +123,26 @@ def ottieni_meteo(latitudine, longitudine):
     if not corrente:
         return None
 
-    temperatura = corrente["temperature_2m"]
-    umidita = corrente["relative_humidity_2m"]
-    velocita_vento = corrente["wind_speed_10m"]
-    codice_corrente = corrente["weather_code"]
+    temperatura = corrente.get("temperature_2m")
+    umidita = corrente.get("relative_humidity_2m")
+    velocita_vento = corrente.get("wind_speed_10m")
+    codice_corrente = corrente.get("weather_code")
+
+    if None in (temperatura, umidita, velocita_vento, codice_corrente):
+        return None
 
     previsioni = dati_meteo.get("daily")
 
     if not previsioni:
         return None
 
-    giorni = previsioni["time"]
-    temperature_minime = previsioni["temperature_2m_min"]
-    temperature_massime = previsioni["temperature_2m_max"]
-    codici_previsioni = previsioni["weather_code"]
+    giorni = previsioni.get("time")
+    temperature_minime = previsioni.get("temperature_2m_min")
+    temperature_massime = previsioni.get("temperature_2m_max")
+    codici_previsioni = previsioni.get("weather_code")
+
+    if None in (giorni, temperature_minime, temperature_massime, codici_previsioni):
+        return None
 
     return (
         temperatura,
@@ -174,8 +183,11 @@ def home():
 
         meteo = ottieni_meteo(latitudine, longitudine)
 
-        if meteo is None:
+        if meteo == "errore_servizio":
             errore = "Impossibile contattare il servizio meteo."
+
+        elif meteo is None:
+            errore = "Il servizio meteo ha restituito dati incompleti."
 
     elif request.method == "POST":
         citta = request.form["citta"]
@@ -184,14 +196,20 @@ def home():
         if coordinate is None:
             errore = f'Impossibile localizzare "{citta}".'
 
+        elif coordinate == "errore_servizio":
+            errore = "Impossibile contattare il servizio di geolocalizzazione."
+
         else:
             latitudine, longitudine, regione = coordinate
             meteo = ottieni_meteo(latitudine, longitudine)
 
-            if meteo is None:
+            if meteo == "errore_servizio":
                 errore = "Impossibile contattare il servizio meteo."
 
-    if meteo is not None:
+            elif meteo is None:
+                errore = "Il servizio meteo ha restituito dati incompleti."
+
+    if meteo is not None and meteo != "errore_servizio":
 
         (
             temperatura,
